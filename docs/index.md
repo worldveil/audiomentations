@@ -111,6 +111,4 @@ As of v0.22.0, all transforms except `AddBackgroundNoise` and `AddShortNoises` s
 
 # Acknowledgements
 
-Thanks to [Nomono](https://nomono.co/) for backing audiomentations.
-
 Thanks to [all contributors](https://github.com/iver56/audiomentations/graphs/contributors) who help improving audiomentations.

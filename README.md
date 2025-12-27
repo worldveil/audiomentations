@@ -101,6 +101,4 @@ For the full changelog, including older versions, see [https://iver56.github.io/
 
 # Acknowledgements
 
-Thanks to [Nomono](https://nomono.co/) for backing audiomentations.
-
 Thanks to [all contributors](https://github.com/iver56/audiomentations/graphs/contributors) who help improving audiomentations.
