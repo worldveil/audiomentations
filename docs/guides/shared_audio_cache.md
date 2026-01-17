@@ -62,7 +62,11 @@ cache_actor = AudioCacheActor.remote(max_memory_mb=500)
 @ray.remote
 def process_audio(audio, noise_dir, cache_actor):
     set_audio_cache_backend(RayAudioCacheBackend(cache_actor))
-    transform = AddBackgroundNoise(sounds_path=noise_dir, p=1.0)
+    transform = AddBackgroundNoise(
+        sounds_path=noise_dir,
+        lru_cache_size=0,  # Disable per-transform cache; use shared backend only
+        p=1.0
+    )
     return transform(audio, sample_rate=44100)
 
 futures = [process_audio.remote(audio, noise_dir, cache_actor) for audio in audio_list]
@@ -79,9 +83,23 @@ All three must match for a cache hit.
 
 ## Cache Behavior
 
-- **Mutable**: Cache populates on-demand as files are loaded (miss → load full file → cache → slice)
+- **Stores full files**: On cache miss, the full file is loaded and cached. Slicing for offset/duration happens on retrieval.
 - **LRU eviction**: When memory limit is reached, least recently used items are evicted
 - **No pre-loading**: Workers start immediately; cache warms up during processing
+
+## Disable Per-Transform LRU Cache
+
+Transforms like `AddBackgroundNoise` have their own `lru_cache_size` parameter. When using a shared cache backend, you can set this to `0` to avoid double caching:
+
+```python
+transform = AddBackgroundNoise(
+    sounds_path=noise_dir,
+    lru_cache_size=0,  # Rely on shared backend only
+    p=1.0
+)
+```
+
+Without this, audio would be cached twice: once in the shared backend, and again in each transform's per-instance LRU cache.
 
 ## Benchmark
 
